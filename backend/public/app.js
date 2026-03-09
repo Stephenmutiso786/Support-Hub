@@ -11,6 +11,18 @@ const tabContent = document.getElementById('tab-content');
 const welcome = document.getElementById('welcome');
 const roleInfo = document.getElementById('role-info');
 
+function navigateToDashboard() {
+  if (window.location.pathname !== '/dashboard') {
+    window.history.pushState({}, '', '/dashboard');
+  }
+}
+
+function navigateToAuth() {
+  if (window.location.pathname !== '/') {
+    window.history.pushState({}, '', '/');
+  }
+}
+
 async function api(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (state.token) {
@@ -114,12 +126,32 @@ function formHtml(tab) {
     </form>`;
   }
 
+  if (tab === 'users' && state.user?.role === 'admin') {
+    return `<form id="create-users" class="grid-2">
+      <input name="full_name" placeholder="Full name" required />
+      <input name="email" placeholder="Email" type="email" required />
+      <input name="password" placeholder="Temp password" type="password" required />
+      <select name="role" required>
+        <option value="client">client</option>
+        <option value="agent">agent</option>
+      </select>
+      <input name="client_id" placeholder="Client ID (required)" required />
+      <input name="agent_id" placeholder="Agent ID (required for role=agent)" />
+      <button type="submit">Create User</button>
+    </form>`;
+  }
+
   return '';
 }
 
 function endpointByTab(tab) {
   if (tab === 'users') return '/api/v1/auth/users';
   return `/api/v1/${tab}`;
+}
+
+function postEndpointByTab(tab) {
+  if (tab === 'users') return '/api/v1/auth/register';
+  return endpointByTab(tab);
 }
 
 function payloadByTab(tab, form) {
@@ -140,7 +172,18 @@ function payloadByTab(tab, form) {
     }
   });
 
+  if (tab === 'users' && data.role !== 'agent') {
+    delete data.agent_id;
+  }
+
   return data;
+}
+
+async function submitTabForm(tab, form) {
+  await api(postEndpointByTab(tab), {
+    method: 'POST',
+    body: JSON.stringify(payloadByTab(tab, form)),
+  });
 }
 
 async function renderTab(tab = state.activeTab) {
@@ -164,10 +207,7 @@ async function renderTab(tab = state.activeTab) {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       try {
-        await api(endpointByTab(tab), {
-          method: 'POST',
-          body: JSON.stringify(payloadByTab(tab, form)),
-        });
+        await submitTabForm(tab, form);
         form.reset();
         await loadSummary();
         await renderTab(tab);
@@ -181,6 +221,7 @@ async function renderTab(tab = state.activeTab) {
 async function showDashboard() {
   authPanel.classList.add('hidden');
   dashboardPanel.classList.remove('hidden');
+  navigateToDashboard();
 
   const me = await api('/api/v1/auth/me');
   state.user = me;
@@ -193,6 +234,7 @@ async function showDashboard() {
 
 async function attemptResume() {
   if (!state.token) {
+    navigateToAuth();
     return;
   }
 
@@ -201,6 +243,7 @@ async function attemptResume() {
   } catch (error) {
     localStorage.removeItem('supporthub_token');
     state.token = null;
+    navigateToAuth();
   }
 }
 
@@ -255,6 +298,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   localStorage.removeItem('supporthub_token');
   dashboardPanel.classList.add('hidden');
   authPanel.classList.remove('hidden');
+  navigateToAuth();
 });
 
 attemptResume();
