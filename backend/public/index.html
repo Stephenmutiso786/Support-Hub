@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support Hub Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Oswald:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow"></div>
+    <main class="app-shell">
+      <section id="auth-panel" class="panel auth-panel">
+        <h1>Support Hub</h1>
+        <p>Multi-tenant call-center command desk</p>
+
+        <form id="register-form" class="form-grid">
+          <h2>Bootstrap Admin</h2>
+          <input name="full_name" placeholder="Full name" required />
+          <input name="email" placeholder="Email" type="email" required />
+          <input name="password" placeholder="Password" type="password" required />
+          <button type="submit">Create Admin</button>
+        </form>
+
+        <form id="login-form" class="form-grid">
+          <h2>Login</h2>
+          <input name="email" placeholder="Email" type="email" required />
+          <input name="password" placeholder="Password" type="password" required />
+          <button type="submit">Login</button>
+        </form>
+      </section>
+
+      <section id="dashboard-panel" class="panel hidden">
+        <header class="topbar">
+          <div>
+            <h2 id="welcome"></h2>
+            <p id="role-info"></p>
+          </div>
+          <button id="logout-btn" class="ghost">Logout</button>
+        </header>
+
+        <div id="stats" class="stats-grid"></div>
+
+        <div class="actions">
+          <button data-tab="clients" class="tab-btn active">Clients</button>
+          <button data-tab="agents" class="tab-btn">Agents</button>
+          <button data-tab="calls" class="tab-btn">Calls</button>
+          <button data-tab="tickets" class="tab-btn">Tickets</button>
+          <button data-tab="users" class="tab-btn">Users</button>
+        </div>
+
+        <section id="tab-content" class="tab-content"></section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

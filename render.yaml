@@ -1,0 +1,34 @@
+databases:
+  - name: supporthub-db
+    databaseName: supporthub
+    user: supporthub
+    plan: free
+
+services:
+  - type: web
+    name: supporthub-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node scripts/init-db.js && node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: supporthub-db
+          property: connectionString
+      - key: SESSION_TTL_HOURS
+        value: "24"
+      - key: TELEPHONY_API_KEY
+        generateValue: true
+      - key: TELEPHONY_WEBHOOK_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+      - key: TRUST_PROXY
+        value: "1"
